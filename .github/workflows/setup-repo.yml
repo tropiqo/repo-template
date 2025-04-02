@@ -53,8 +53,20 @@ jobs:
         run: |
           gh api -X DELETE /repos/${{ github.repository }}/git/refs/heads/main
 
-      - name: Delete setup workflow file
+      - name: Delete setup workflow file from default branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git rm .github/workflows/setup-repo.yml
+          # Clone the default branch directly to make edits
+          git clone https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }} repo
+          cd repo
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Delete the workflow
+          rm .github/workflows/setup-repo.yml
+          git add .
           git commit -m "Cleanup: remove setup workflow"
-          git push origin master
+          git push origin HEAD
+
