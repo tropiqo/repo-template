@@ -6,7 +6,13 @@ on:
 
 jobs:
   setup:
+    if: ${{ github.repository != 'teq-io-innovations/repo-template' }}
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      actions: write
+      pull-requests: write
 
     steps:
       - name: Checkout
@@ -52,3 +58,4 @@ jobs:
           git add .
           git commit -m "Cleanup: remove setup workflow"
           git push origin master
+
