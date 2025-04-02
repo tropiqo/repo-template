@@ -29,14 +29,14 @@ jobs:
 
       - name: Set master as default
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
         run: |
           gh auth setup-git
           gh repo edit --default-branch master
 
       - name: Protect master branch
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
         run: |
           gh api -X PUT /repos/${{ github.repository }}/branches/master/protection \
             -F enforce_admins=true \
@@ -48,13 +48,13 @@ jobs:
 
       - name: Delete main branch
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
         run: |
           gh api -X DELETE /repos/${{ github.repository }}/git/refs/heads/main
 
       - name: Delete setup workflow file from default branch
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
         run: |
           # Clone the default branch directly to make edits
           git clone https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }} repo
