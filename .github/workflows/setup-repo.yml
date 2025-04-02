@@ -12,7 +12,6 @@ jobs:
       contents: write
       actions: write
       pull-requests: write
-      administration: write  # Needed to change default branch and protect it
 
     steps:
       - name: Checkout
