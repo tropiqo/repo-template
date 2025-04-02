@@ -6,6 +6,7 @@ on:
 
 jobs:
   setup:
+    if: ${{ github.repository != 'teq-io-innovations/repo-template' }}
     runs-on: ubuntu-latest
 
     permissions:
