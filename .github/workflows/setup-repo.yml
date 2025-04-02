@@ -1,43 +1,24 @@
-name: Auto Setup Master Branch
-
-on:
-  push:
-    branches: [main]  # Triggers when repo is first created using template
-
 jobs:
   setup:
-    if: ${{ github.repository != 'teq-io-innovations/repo-template' }}
     runs-on: ubuntu-latest
-
-    permissions:
-      contents: write
-      actions: write
-      pull-requests: write
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Set up Git identity
+      - name: Create master branch
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Create master branch and push
-        run: |
           git checkout -b master
           git push origin master
 
       - name: Set master as default
+        run: gh repo edit --default-branch master
         env:
           GH_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
-        run: |
-          gh repo edit --default-branch master
-
 
       - name: Protect master branch
-        env:
-          GH_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
         run: |
           gh api -X PUT /repos/${{ github.repository }}/branches/master/protection \
             -F enforce_admins=true \
@@ -46,27 +27,22 @@ jobs:
             -f required_status_checks.contexts='["build"]' \
             -f required_status_checks.strict=true \
             -f restrictions='{}'
+        env:
+          GH_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
 
       - name: Delete main branch
-        env:
-          GH_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
         run: |
           gh api -X DELETE /repos/${{ github.repository }}/git/refs/heads/main
-
-      - name: Delete setup workflow file from default branch
         env:
           GH_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
-        run: |
-          # Clone the default branch directly to make edits
-          git clone https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }} repo
-          cd repo
 
+      - name: Delete this workflow
+        run: |
+          git clone https://x-access-token:${{ secrets.GH_ADMIN_TOKEN }}@github.com/${{ github.repository }} repo
+          cd repo
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          # Delete the workflow
           rm .github/workflows/setup-repo.yml
           git add .
           git commit -m "Cleanup: remove setup workflow"
-          git push origin HEAD
-
+          git push origin master
