@@ -1,0 +1,54 @@
+name: Auto Setup Master Branch
+
+on:
+  push:
+    branches: [main]  # Triggers when repo is first created using template
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      actions: write
+      pull-requests: write
+      administration: write  # Needed to change default branch and protect it
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Git identity
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Create master branch and push
+        run: |
+          git checkout -b master
+          git push origin master
+
+      - name: Set master as default
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh auth setup-git
+          gh repo edit --default-branch master
+
+      - name: Protect master branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api -X PUT /repos/${{ github.repository }}/branches/master/protection \
+            -F enforce_admins=true \
+            -F required_pull_request_reviews.dismiss_stale_reviews=true \
+            -F required_pull_request_reviews.require_code_owner_reviews=true \
+            -f required_status_checks.contexts='["build"]' \
+            -f required_status_checks.strict=true \
+            -f restrictions='{}'
+
+      - name: Delete main branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api -X DELETE /repos/${{ github.repository }}/git/refs/heads/main
