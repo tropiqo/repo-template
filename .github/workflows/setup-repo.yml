@@ -32,8 +32,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
         run: |
-          gh auth setup-git
+          gh auth login --with-token <<< "${GH_TOKEN}"
           gh repo edit --default-branch master
+
 
       - name: Protect master branch
         env:
