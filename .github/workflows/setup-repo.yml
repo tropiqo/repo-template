@@ -32,7 +32,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
         run: |
-          echo "${GH_TOKEN}" | gh auth login --with-token
           gh repo edit --default-branch master
 
 
