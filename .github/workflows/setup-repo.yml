@@ -1,3 +1,9 @@
+name: Auto Setup Master Branch
+
+on:
+  push:
+    branches: [main]  # Triggers when repo is first created using template
+
 jobs:
   setup:
     runs-on: ubuntu-latest
