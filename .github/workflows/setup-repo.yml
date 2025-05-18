@@ -6,7 +6,7 @@ on:
 
 jobs:
   setup:
-    if: ${{ github.repository != 'teq-io-innovations/repo-template' }}
+    if: ${{ github.repository != 'tropiqo/repo-template' }}
     runs-on: ubuntu-latest
 
     permissions:
@@ -20,8 +20,8 @@ jobs:
 
       - name: Create master branch
         run: |
-          git config --global user.name "teq.io[bot]"
-          git config --global user.email "teq.io[bot]@users.noreply.github.com"
+          git config --global user.name "tropiqo[bot]"
+          git config --global user.email "tropiqo[bot]@users.noreply.github.com"
           git checkout -b master
           git push origin master
 
